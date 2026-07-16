@@ -6,7 +6,7 @@
     <title>Meeronix – About Us</title>
     <meta name="description" content="Learn about Meeronix – our story and mission." />
     <meta name="theme-color" content="#011425" />
-  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="images/image.png" type="image/png" />
 </head>
 <body>
@@ -31,36 +31,8 @@
         <div class="container">
             <h1 class="section-title">About <span>Meeronix</span></h1>
             <div style="max-width: 800px; margin: 0 auto;">
-                <div class="about-card">
-                    <h2 class="about-heading">Our Story</h2>
-                    <p class="about-text">
-                        Founded in 2020, Meeronix was born from a simple idea: <strong>everyone deserves access to premium electronics without the premium price tag.</strong>
-                    </p>
-                    <p class="about-text">
-                        What started as a small online store has grown into a trusted destination for tech enthusiasts, professionals, and everyday users who demand quality, reliability, and style.
-                    </p>
-                    <hr class="about-divider" />
-                    <h2 class="about-heading">Our Mission</h2>
-                    <p class="about-text">
-                        To bridge the gap between cutting-edge technology and everyday accessibility. We carefully curate each product to ensure it meets our high standards for performance, durability, and design.
-                    </p>
-                    <div class="about-grid">
-                        <div class="about-feature">
-                            <div class="about-feature-icon">🔒</div>
-                            <h4>Trusted Quality</h4>
-                            <p>Every product is vetted for excellence</p>
-                        </div>
-                        <div class="about-feature">
-                            <div class="about-feature-icon">📦</div>
-                            <h4>Fast Shipping</h4>
-                            <p>Delivered to your door in days</p>
-                        </div>
-                        <div class="about-feature">
-                            <div class="about-feature-icon">💬</div>
-                            <h4>24/7 Support</h4>
-                            <p>We're here when you need us</p>
-                        </div>
-                    </div>
+                <div id="aboutContent" class="about-card">
+                    <!-- Content loaded from Google Sheets -->
                 </div>
             </div>
         </div>
@@ -73,61 +45,5 @@
     </footer>
 
     <script src="script.js"></script>
-    <script>
-    // ============================================================
-    // LOAD ABOUT PAGE CONTENT FROM GOOGLE SHEETS
-    // ============================================================
-    document.addEventListener('DOMContentLoaded', function() {
-        // Wait a moment for content to load
-        setTimeout(function() {
-            const about = window.contentData?.about || {};
-            
-            // Update Story
-            const story = about.story || {};
-            const storyTitle = story.title || 'Our Story';
-            const storyText = story.text || 'Founded in 2020, Meeronix was born from a simple idea: <strong>everyone deserves access to premium electronics without the premium price tag.</strong> What started as a small online store has grown into a trusted destination for tech enthusiasts, professionals, and everyday users who demand quality, reliability, and style.';
-            
-            const storyHeading = document.querySelector('.about-card h2:first-of-type');
-            const storyParagraphs = document.querySelectorAll('.about-card .about-text');
-            
-            if (storyHeading) storyHeading.textContent = storyTitle;
-            if (storyParagraphs.length >= 1) storyParagraphs[0].innerHTML = storyText;
-            
-            // Update Mission
-            const mission = about.mission || {};
-            const missionTitle = mission.title || 'Our Mission';
-            const missionText = mission.text || 'To bridge the gap between cutting-edge technology and everyday accessibility. We carefully curate each product to ensure it meets our high standards for performance, durability, and design.';
-            
-            const missionHeading = document.querySelector('.about-card h2:nth-of-type(2)');
-            if (missionHeading) missionHeading.textContent = missionTitle;
-            if (storyParagraphs.length >= 2) storyParagraphs[1].innerHTML = missionText;
-            
-            // Update Features
-            const features = [
-                { key: 'feature1', index: 0 },
-                { key: 'feature2', index: 1 },
-                { key: 'feature3', index: 2 }
-            ];
-            
-            const featureElements = document.querySelectorAll('.about-feature');
-            features.forEach((item, i) => {
-                const feature = about[item.key] || {};
-                const icon = feature.icon || ['🔒', '📦', '💬'][i];
-                const title = feature.title || ['Trusted Quality', 'Fast Shipping', '24/7 Support'][i];
-                const text = feature.text || ['Every product is vetted for excellence', 'Delivered to your door in days', 'We\'re here when you need us'][i];
-                
-                if (featureElements[i]) {
-                    const iconEl = featureElements[i].querySelector('.about-feature-icon');
-                    const titleEl = featureElements[i].querySelector('h4');
-                    const textEl = featureElements[i].querySelector('p');
-                    
-                    if (iconEl) iconEl.textContent = icon;
-                    if (titleEl) titleEl.textContent = title;
-                    if (textEl) textEl.textContent = text;
-                }
-            });
-        }, 500);
-    });
-</script>
 </body>
 </html>

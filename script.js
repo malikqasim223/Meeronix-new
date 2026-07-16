@@ -1,34 +1,28 @@
 /* ============================================================
-   MEERONIX – COMPLETE JAVASCRIPT (Google Sheets + Content)
-   Now with CATEGORY support (e.g. AC, Fridge, TV...)
+   MEERONIX – COMPLETE JAVASCRIPT
    ============================================================ */
 
 const GOOGLE_SHEETS_API = 'https://script.google.com/macros/s/AKfycbyFnPHyC9MxhTuFxtdH1FeFsFqwG7IK99tMfh8ZPJXWAK9aIN4evGmI4QotQJE1aAkiug/exec';
 
 const CACHE_KEY = 'meeronix_products';
 const CACHE_TIMESTAMP_KEY = 'meeronix_products_time';
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const CACHE_DURATION = 10 * 60 * 1000;
 
 let products = [];
 window.contentData = {};
 
 // ============================================================
-// HELPER: FORMAT PRICE (Removes Rs, $, commas, etc.)
+// FORMAT PRICE
 // ============================================================
 function formatPrice(value) {
-    if (value === null || value === undefined || value === '') {
-        return '0.00';
-    }
+    if (value === null || value === undefined || value === '') return '0.00';
     const cleanValue = String(value).replace(/[^0-9.]/g, '');
     const number = parseFloat(cleanValue);
-    if (isNaN(number)) {
-        return '0.00';
-    }
-    return number.toFixed(2);
+    return isNaN(number) ? '0.00' : number.toFixed(2);
 }
 
 // ============================================================
-// HELPER: GROUP PRODUCTS BY CATEGORY
+// GROUP BY CATEGORY
 // ============================================================
 function groupByCategory(list) {
     const groups = {};
@@ -45,7 +39,7 @@ function slugify(text) {
 }
 
 // ============================================================
-// LOAD PRODUCTS WITH CACHING
+// LOAD PRODUCTS
 // ============================================================
 async function loadProducts() {
     const cachedData = localStorage.getItem(CACHE_KEY);
@@ -65,9 +59,7 @@ async function loadProducts() {
     try {
         console.log('🔄 Fetching products from Google Sheets...');
         const response = await fetch(GOOGLE_SHEETS_API);
-
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
         const data = await response.json();
         if (data && data.error) throw new Error(data.error);
 
@@ -86,43 +78,30 @@ async function loadProducts() {
 
         localStorage.setItem(CACHE_KEY, JSON.stringify(products));
         localStorage.setItem(CACHE_TIMESTAMP_KEY, String(now));
-
         console.log(`✅ Loaded ${products.length} products from Google Sheets`);
         return products;
     } catch (error) {
         console.error('❌ Error loading products:', error);
-
         if (cachedData) {
             try {
                 products = JSON.parse(cachedData);
                 console.log(`📦 Using cached products as fallback (${products.length} items)`);
                 return products;
-            } catch (e) {
-                products = [];
-            }
+            } catch (e) { products = []; }
         }
         return [];
     }
 }
 
 // ============================================================
-// RENDER: HOME PAGE — ONE AUTO-SCROLL CAROUSEL PER CATEGORY
+// RENDER: HOME CATEGORIES (Carousel)
 // ============================================================
 function renderHomeCategories(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
     if (!products || products.length === 0) {
-        const skeletonTiles = Array.from({ length: 6 }, () => `
-            <div class="carousel-link" style="flex:0 0 260px;width:260px;height:260px;border-radius:16px;background:#e0e0e0;animation:shimmer 1.5s infinite;"></div>
-        `).join('');
-        container.innerHTML = `
-            <div class="category-block">
-                <div class="scroll-wrapper">
-                    <div class="carousel-track">${skeletonTiles}${skeletonTiles}</div>
-                </div>
-            </div>
-        `;
+        container.innerHTML = `<div class="category-block"><div class="scroll-wrapper"><div class="carousel-track">Loading...</div></div></div>`;
         return;
     }
 
@@ -139,7 +118,6 @@ function renderHomeCategories(containerId) {
 
     container.innerHTML = Object.keys(groups).map(category => {
         const items = groups[category];
-        const trackId = `carousel-${slugify(category)}`;
         const original = items.map(p => buildTile(p, false)).join('');
         const duplicate = items.map(p => buildTile(p, true)).join('');
 
@@ -149,7 +127,7 @@ function renderHomeCategories(containerId) {
                     <span class="category-tag">${category}</span>
                 </div>
                 <div class="scroll-wrapper">
-                    <div class="carousel-track" id="${trackId}">${original}${duplicate}</div>
+                    <div class="carousel-track">${original}${duplicate}</div>
                 </div>
             </div>
         `;
@@ -157,22 +135,14 @@ function renderHomeCategories(containerId) {
 }
 
 // ============================================================
-// RENDER: PRODUCTS PAGE — SECTION PER CATEGORY (EQUAL HEIGHT CARDS)
+// RENDER: PRODUCTS CATEGORIES (Grid)
 // ============================================================
 function renderProductsCategories(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
     if (!products || products.length === 0) {
-        const skeletons = Array.from({ length: 10 }, (_, i) => `
-            <div class="product-card skeleton-card" style="--i: ${i}">
-                <div class="skeleton-img" style="height:200px;background:#e0e0e0;border-radius:var(--radius-sm);"></div>
-                <div class="skeleton-text skeleton-title" style="height:14px;width:70%;background:#e0e0e0;border-radius:6px;margin:0.3rem auto;"></div>
-                <div class="skeleton-text skeleton-desc" style="height:14px;width:90%;background:#e0e0e0;border-radius:6px;margin:0.3rem auto;"></div>
-                <div class="skeleton-text skeleton-price" style="height:14px;width:40%;background:#e0e0e0;border-radius:6px;margin:0.3rem auto;"></div>
-            </div>
-        `).join('');
-        container.innerHTML = `<div class="category-block"><div class="product-grid">${skeletons}</div></div>`;
+        container.innerHTML = `<div class="category-block"><div class="product-grid">Loading...</div></div>`;
         return;
     }
 
@@ -180,20 +150,17 @@ function renderProductsCategories(containerId) {
 
     container.innerHTML = Object.keys(groups).map(category => {
         const items = groups[category];
-        const cards = items.map(product => {
-            const formattedPrice = formatPrice(product.price);
-            return `
-                <a href="product-detail.html?id=${product.id}" style="text-decoration:none;color:inherit;display:block;height:100%;">
-                    <div class="product-card" style="--i: ${product.id}">
-                        <img src="${product.image}" alt="${product.name}" loading="lazy"
-                             onerror="this.onerror=null; this.src='images/placeholder.jpg';" />
-                        <h3>${product.name}</h3>
-                        <p class="desc">${product.description}</p>
-                        <div class="price">Rs ${formattedPrice}</div>
-                    </div>
-                </a>
-            `;
-        }).join('');
+        const cards = items.map(product => `
+            <a href="product-detail.html?id=${product.id}" style="text-decoration:none;color:inherit;display:block;height:100%;">
+                <div class="product-card" style="--i: ${product.id}">
+                    <img src="${product.image}" alt="${product.name}" loading="lazy"
+                         onerror="this.onerror=null; this.src='images/placeholder.jpg';" />
+                    <h3>${product.name}</h3>
+                    <p class="desc">${product.description}</p>
+                    <div class="price">Rs ${formatPrice(product.price)}</div>
+                </div>
+            </a>
+        `).join('');
 
         return `
             <div class="category-block">
@@ -204,6 +171,90 @@ function renderProductsCategories(containerId) {
             </div>
         `;
     }).join('');
+}
+
+// ============================================================
+// RENDER: ABOUT PAGE
+// ============================================================
+function renderAboutPage() {
+    const container = document.getElementById('aboutContent');
+    if (!container) return;
+
+    const about = window.contentData?.about || {};
+
+    const story = about.story || {};
+    const storyTitle = story.title || 'Our Story';
+    const storyText = story.text || 'Founded in 2020, Meeronix was born from a simple idea: <strong>everyone deserves access to premium electronics without the premium price tag.</strong>';
+
+    const mission = about.mission || {};
+    const missionTitle = mission.title || 'Our Mission';
+    const missionText = mission.text || 'To bridge the gap between cutting-edge technology and everyday accessibility.';
+
+    const features = [
+        about.feature1 || { icon: '🔒', title: 'Trusted Quality', text: 'Every product is vetted for excellence' },
+        about.feature2 || { icon: '📦', title: 'Fast Shipping', text: 'Delivered to your door in days' },
+        about.feature3 || { icon: '💬', title: '24/7 Support', text: 'We\'re here when you need us' }
+    ];
+
+    container.innerHTML = `
+        <h2 class="about-heading">${storyTitle}</h2>
+        <p class="about-text">${storyText}</p>
+        <hr class="about-divider" />
+        <h2 class="about-heading">${missionTitle}</h2>
+        <p class="about-text">${missionText}</p>
+        <div class="about-grid">
+            ${features.map(f => `
+                <div class="about-feature">
+                    <div class="about-feature-icon">${f.icon}</div>
+                    <h4>${f.title}</h4>
+                    <p>${f.text}</p>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+// ============================================================
+// RENDER: CONTACT PAGE
+// ============================================================
+function renderContactPage() {
+    const container = document.getElementById('contactContent');
+    if (!container) return;
+
+    const contact = window.contentData?.contact || {};
+
+    const email = contact.email?.value || 'support@meeronix.com';
+    const phone = contact.phone?.value || '+1 (555) 123-4567';
+    const address = contact.address?.value || '123 Tech Street, Silicon Valley, CA 94025';
+    const hours = contact.hours?.value || 'Mon–Fri, 9:00 AM – 6:00 PM EST';
+    const whatsapp = contact.whatsapp?.value || '15551234567';
+
+    container.innerHTML = `
+        <div class="contact-info">
+            <h3>Get in Touch</h3>
+            <p>📧 <strong>Email:</strong> ${email}</p>
+            <p>📞 <strong>Phone:</strong> ${phone}</p>
+            <p>📍 <strong>Address:</strong> ${address}</p>
+            <p>🕐 <strong>Hours:</strong> ${hours}</p>
+            <a href="https://wa.me/${whatsapp}" target="_blank" rel="noopener noreferrer" class="whatsapp-float-contact" style="margin-top: 1.5rem;">
+                💬 Chat with us on WhatsApp
+            </a>
+        </div>
+        <div class="contact-form">
+            <h3>Send a Message</h3>
+            <form id="contactForm" novalidate>
+                <input type="text" id="contactName" placeholder="Your Name" required />
+                <input type="email" id="contactEmail" placeholder="Your Email" required />
+                <input type="text" id="contactSubject" placeholder="Subject" required />
+                <textarea id="contactMessage" rows="5" placeholder="Your Message..." required></textarea>
+                <button type="submit" class="btn-primary" id="contactSubmitBtn" style="width: 100%;">Send Message</button>
+            </form>
+            <div id="contactFormMessage" class="form-message" role="status" aria-live="polite"></div>
+        </div>
+    `;
+
+    // Re-initialize contact form
+    setupContactForm();
 }
 
 // ============================================================
@@ -277,7 +328,6 @@ function setupNavbarScroll() {
     }, { passive: true });
 }
 
-// Now handles MULTIPLE carousels (one per category)
 function setupCarouselMotion() {
     const wrappers = document.querySelectorAll('.scroll-wrapper');
     if (!wrappers.length) return;
@@ -309,16 +359,91 @@ function setupCarouselMotion() {
 }
 
 // ============================================================
+// PRODUCT DETAIL PAGE
+// ============================================================
+function renderProductDetail() {
+    const container = document.getElementById('productDetailContent');
+    if (!container) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = parseInt(urlParams.get('id'));
+
+    if (!productId) {
+        container.innerHTML = `
+            <div class="product-detail-empty">
+                <h2>No Product Selected</h2>
+                <p>Please go back to the <a href="products.html" style="color:var(--accent);">Products page</a>.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const product = products.find(p => p.id === productId);
+
+    if (!product) {
+        container.innerHTML = `
+            <div class="product-detail-notfound">
+                <h2>Product Not Found</h2>
+                <p>Sorry, we couldn't find this product.</p>
+                <a href="products.html" class="btn-primary">Back to Products</a>
+            </div>
+        `;
+        return;
+    }
+
+    const details = product.details || product.description || 'No additional details available.';
+
+    container.innerHTML = `
+        <div class="product-detail-wrapper">
+            <div class="product-detail-image">
+                <img src="${product.image}" alt="${product.name}" />
+            </div>
+            <div class="product-detail-info">
+                <h1>${product.name}</h1>
+                <div class="product-detail-price">Rs ${formatPrice(product.price)}</div>
+                <div class="product-detail-description">${product.description}</div>
+                <div class="product-detail-details">
+                    <h3>📋 Product Details</h3>
+                    <p>${details}</p>
+                </div>
+                ${product.specs ? `
+                    <div class="product-detail-specs">
+                        <h3>📐 Specifications</h3>
+                        <div><p>${product.specs}</p></div>
+                    </div>
+                ` : ''}
+                <div class="product-detail-buttons">
+                    <a href="products.html" class="btn-secondary">← Back to Products</a>
+                    <a href="contact.html" class="btn-primary">📩 Contact Us</a>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async function () {
-    renderHomeCategories('homeCategories');
-    renderProductsCategories('productsCategories');
+    // Show loading state
+    const homeContainer = document.getElementById('homeCategories');
+    const productsContainer = document.getElementById('productsCategories');
+    const aboutContainer = document.getElementById('aboutContent');
+    const contactContainer = document.getElementById('contactContent');
+
+    if (homeContainer) homeContainer.innerHTML = '<div class="category-block"><div class="scroll-wrapper"><div class="carousel-track">Loading products...</div></div></div>';
+    if (productsContainer) productsContainer.innerHTML = '<div class="category-block"><div class="product-grid">Loading products...</div></div>';
+    if (aboutContainer) aboutContainer.innerHTML = '<p style="text-align:center;padding:2rem;">Loading about us...</p>';
+    if (contactContainer) contactContainer.innerHTML = '<p style="text-align:center;padding:2rem;">Loading contact information...</p>';
 
     await loadProducts();
 
     renderHomeCategories('homeCategories');
     renderProductsCategories('productsCategories');
+
+    if (document.getElementById('aboutContent')) renderAboutPage();
+    if (document.getElementById('contactContent')) renderContactPage();
+    if (document.getElementById('productDetailContent')) renderProductDetail();
 
     setupHamburger();
     setupContactForm();

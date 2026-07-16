@@ -6,7 +6,7 @@
     <title>Meeronix – Contact Us</title>
     <meta name="description" content="Get in touch with Meeronix – we'd love to hear from you!" />
     <meta name="theme-color" content="#011425" />
-  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="images/image.png" type="image/png" />
 </head>
 <body>
@@ -34,29 +34,8 @@
                 Have a question? We'd love to hear from you!
             </p>
 
-            <div class="contact-wrapper">
-                <div class="contact-info">
-                    <h3>Get in Touch</h3>
-                    <p>📧 <strong>Email:</strong> support@meeronix.com</p>
-                    <p>📞 <strong>Phone:</strong> +1 (555) 123-4567</p>
-                    <p>📍 <strong>Address:</strong> 123 Tech Street, Silicon Valley, CA 94025</p>
-                    <p>🕐 <strong>Hours:</strong> Mon–Fri, 9:00 AM – 6:00 PM EST</p>
-                    <a href="https://wa.me/15551234567" target="_blank" rel="noopener noreferrer" class="whatsapp-float-contact" style="margin-top: 1.5rem;">
-                        💬 Chat with us on WhatsApp
-                    </a>
-                </div>
-
-                <div class="contact-form">
-                    <h3>Send a Message</h3>
-                    <form id="contactForm" novalidate>
-                        <input type="text" id="contactName" placeholder="Your Name" required />
-                        <input type="email" id="contactEmail" placeholder="Your Email" required />
-                        <input type="text" id="contactSubject" placeholder="Subject" required />
-                        <textarea id="contactMessage" rows="5" placeholder="Your Message..." required></textarea>
-                        <button type="submit" class="btn-primary" id="contactSubmitBtn" style="width: 100%;">Send Message</button>
-                    </form>
-                    <div id="contactFormMessage" class="form-message" role="status" aria-live="polite"></div>
-                </div>
+            <div id="contactContent" class="contact-wrapper">
+                <!-- Content loaded from Google Sheets -->
             </div>
         </div>
     </section>
@@ -68,41 +47,5 @@
     </footer>
 
     <script src="script.js"></script>
-    <script>
-    // ============================================================
-    // LOAD CONTACT PAGE CONTENT FROM GOOGLE SHEETS
-    // ============================================================
-    document.addEventListener('DOMContentLoaded', function() {
-        // Wait a moment for content to load
-        setTimeout(function() {
-            const contact = window.contentData?.contact || {};
-            
-            // Get contact details from Google Sheets or use defaults
-            const email = contact.email?.value || 'support@meeronix.com';
-            const phone = contact.phone?.value || '+1 (555) 123-4567';
-            const address = contact.address?.value || '123 Tech Street, Silicon Valley, CA 94025';
-            const hours = contact.hours?.value || 'Mon–Fri, 9:00 AM – 6:00 PM EST';
-            const whatsapp = contact.whatsapp?.value || '15551234567';
-            
-            // Update contact info
-            const contactInfo = document.querySelector('.contact-info');
-            if (contactInfo) {
-                const paragraphs = contactInfo.querySelectorAll('p');
-                if (paragraphs.length >= 4) {
-                    paragraphs[0].innerHTML = `📧 <strong>Email:</strong> ${email}`;
-                    paragraphs[1].innerHTML = `📞 <strong>Phone:</strong> ${phone}`;
-                    paragraphs[2].innerHTML = `📍 <strong>Address:</strong> ${address}`;
-                    paragraphs[3].innerHTML = `🕐 <strong>Hours:</strong> ${hours}`;
-                }
-                
-                // Update WhatsApp link
-                const whatsappLink = contactInfo.querySelector('.whatsapp-float-contact');
-                if (whatsappLink) {
-                    whatsappLink.href = `https://wa.me/${whatsapp}`;
-                }
-            }
-        }, 500);
-    });
-</script>
 </body>
 </html>
