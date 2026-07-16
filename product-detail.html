@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meeronix – Product Details</title>
     <meta name="theme-color" content="#011425" />
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="images/image.png" type="image/png" />
 </head>
 <body>
@@ -41,87 +41,6 @@
     </footer>
 
     <script src="script.js"></script>
-    <script>
-        // ============================================================
-        // PRODUCT DETAIL PAGE
-        // ============================================================
-        function renderProductDetail() {
-            const container = document.getElementById('productDetailContent');
-            if (!container) return;
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const productId = parseInt(urlParams.get('id'));
-
-            if (!productId) {
-                container.innerHTML = `
-                    <div class="product-detail-empty">
-                        <h2>No Product Selected</h2>
-                        <p>Please go back to the <a href="products.html" style="color:var(--accent);">Products page</a>.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const product = products.find(p => p.id === productId);
-
-            if (!product) {
-                container.innerHTML = `
-                    <div class="product-detail-notfound">
-                        <h2>Product Not Found</h2>
-                        <p>Sorry, we couldn't find this product.</p>
-                        <a href="products.html" class="btn-primary">Back to Products</a>
-                    </div>
-                `;
-                return;
-            }
-
-            const details = product.details || product.description || 'No additional details available.';
-
-            container.innerHTML = `
-                <div class="product-detail-wrapper">
-                    <div class="product-detail-image">
-                        <img src="${product.image}" alt="${product.name}" />
-                    </div>
-                    <div class="product-detail-info">
-                        <h1>${product.name}</h1>
-                        <div class="product-detail-price">Rs ${formatPrice(product.price)}</div>
-                        <div class="product-detail-description">${product.description}</div>
-                        <div class="product-detail-details">
-                            <h3>📋 Product Details</h3>
-                            <p>${details}</p>
-                        </div>
-                        ${product.specs ? `
-                            <div class="product-detail-specs">
-                                <h3>📐 Specifications</h3>
-                                <div><p>${product.specs}</p></div>
-                            </div>
-                        ` : ''}
-                        <div class="product-detail-buttons">
-                            <a href="products.html" class="btn-secondary">← Back to Products</a>
-                            <a href="contact.html" class="btn-primary">📩 Contact Us</a>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (products && products.length > 0) {
-                renderProductDetail();
-            } else {
-                let attempts = 0;
-                const checkInterval = setInterval(() => {
-                    attempts++;
-                    if (products && products.length > 0) {
-                        renderProductDetail();
-                        clearInterval(checkInterval);
-                    } else if (attempts > 20) {
-                        clearInterval(checkInterval);
-                        renderProductDetail();
-                    }
-                }, 300);
-            }
-        });
-    </script>
+    <!-- No inline script – external script.js handles product detail -->
 </body>
 </html>

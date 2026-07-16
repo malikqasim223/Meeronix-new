@@ -253,8 +253,70 @@ function renderContactPage() {
         </div>
     `;
 
-    // Re-initialize contact form
     setupContactForm();
+}
+
+// ============================================================
+// RENDER: PRODUCT DETAIL
+// ============================================================
+function renderProductDetail() {
+    const container = document.getElementById('productDetailContent');
+    if (!container) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = parseInt(urlParams.get('id'));
+
+    if (!productId) {
+        container.innerHTML = `
+            <div class="product-detail-empty">
+                <h2>No Product Selected</h2>
+                <p>Please go back to the <a href="products.html" style="color:var(--accent);">Products page</a>.</p>
+            </div>
+        `;
+        return;
+    }
+
+    const product = products.find(p => p.id === productId);
+
+    if (!product) {
+        container.innerHTML = `
+            <div class="product-detail-notfound">
+                <h2>Product Not Found</h2>
+                <p>Sorry, we couldn't find this product.</p>
+                <a href="products.html" class="btn-primary">Back to Products</a>
+            </div>
+        `;
+        return;
+    }
+
+    const details = product.details || product.description || 'No additional details available.';
+
+    container.innerHTML = `
+        <div class="product-detail-wrapper">
+            <div class="product-detail-image">
+                <img src="${product.image}" alt="${product.name}" />
+            </div>
+            <div class="product-detail-info">
+                <h1>${product.name}</h1>
+                <div class="product-detail-price">Rs ${formatPrice(product.price)}</div>
+                <div class="product-detail-description">${product.description}</div>
+                <div class="product-detail-details">
+                    <h3>📋 Product Details</h3>
+                    <p>${details}</p>
+                </div>
+                ${product.specs ? `
+                    <div class="product-detail-specs">
+                        <h3>📐 Specifications</h3>
+                        <div><p>${product.specs}</p></div>
+                    </div>
+                ` : ''}
+                <div class="product-detail-buttons">
+                    <a href="products.html" class="btn-secondary">← Back to Products</a>
+                    <a href="contact.html" class="btn-primary">📩 Contact Us</a>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // ============================================================
@@ -359,82 +421,21 @@ function setupCarouselMotion() {
 }
 
 // ============================================================
-// PRODUCT DETAIL PAGE
-// ============================================================
-function renderProductDetail() {
-    const container = document.getElementById('productDetailContent');
-    if (!container) return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = parseInt(urlParams.get('id'));
-
-    if (!productId) {
-        container.innerHTML = `
-            <div class="product-detail-empty">
-                <h2>No Product Selected</h2>
-                <p>Please go back to the <a href="products.html" style="color:var(--accent);">Products page</a>.</p>
-            </div>
-        `;
-        return;
-    }
-
-    const product = products.find(p => p.id === productId);
-
-    if (!product) {
-        container.innerHTML = `
-            <div class="product-detail-notfound">
-                <h2>Product Not Found</h2>
-                <p>Sorry, we couldn't find this product.</p>
-                <a href="products.html" class="btn-primary">Back to Products</a>
-            </div>
-        `;
-        return;
-    }
-
-    const details = product.details || product.description || 'No additional details available.';
-
-    container.innerHTML = `
-        <div class="product-detail-wrapper">
-            <div class="product-detail-image">
-                <img src="${product.image}" alt="${product.name}" />
-            </div>
-            <div class="product-detail-info">
-                <h1>${product.name}</h1>
-                <div class="product-detail-price">Rs ${formatPrice(product.price)}</div>
-                <div class="product-detail-description">${product.description}</div>
-                <div class="product-detail-details">
-                    <h3>📋 Product Details</h3>
-                    <p>${details}</p>
-                </div>
-                ${product.specs ? `
-                    <div class="product-detail-specs">
-                        <h3>📐 Specifications</h3>
-                        <div><p>${product.specs}</p></div>
-                    </div>
-                ` : ''}
-                <div class="product-detail-buttons">
-                    <a href="products.html" class="btn-secondary">← Back to Products</a>
-                    <a href="contact.html" class="btn-primary">📩 Contact Us</a>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async function () {
-    // Show loading state
+    // Show loading states
     const homeContainer = document.getElementById('homeCategories');
     const productsContainer = document.getElementById('productsCategories');
     const aboutContainer = document.getElementById('aboutContent');
     const contactContainer = document.getElementById('contactContent');
+    const detailContainer = document.getElementById('productDetailContent');
 
     if (homeContainer) homeContainer.innerHTML = '<div class="category-block"><div class="scroll-wrapper"><div class="carousel-track">Loading products...</div></div></div>';
     if (productsContainer) productsContainer.innerHTML = '<div class="category-block"><div class="product-grid">Loading products...</div></div>';
     if (aboutContainer) aboutContainer.innerHTML = '<p style="text-align:center;padding:2rem;">Loading about us...</p>';
     if (contactContainer) contactContainer.innerHTML = '<p style="text-align:center;padding:2rem;">Loading contact information...</p>';
+    if (detailContainer) detailContainer.innerHTML = '<p style="text-align:center;padding:2rem;">Loading product details...</p>';
 
     await loadProducts();
 
