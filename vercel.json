@@ -1,0 +1,32 @@
+{
+    "version": 2,
+    "name": "meeronix",
+    "builds": [
+        {
+            "src": "*.html",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/",
+            "dest": "/home.html"
+        },
+        {
+            "src": "/home",
+            "dest": "/home.html"
+        },
+        {
+            "src": "/products",
+            "dest": "/products.html"
+        },
+        {
+            "src": "/about",
+            "dest": "/about.html"
+        },
+        {
+            "src": "/contact",
+            "dest": "/contact.html"
+        }
+    ]
+}
